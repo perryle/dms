@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ekgc.dms.dao.UserDao">
+	<insert id="insertUser" parameterType="cn.ekgc.dms.pojo.entity.User">
+		insert into sys_user(
+		username,cellphone,password,gender,role_id,id_card) values(
+		#{username},#{cellphone},#{password},#{gender},#{role.roleId},#{idCard})
+	</insert>
+	<update id="updateUser" parameterType="cn.ekgc.dms.pojo.entity.User">
+		update 
+			sys_user 
+		set 
+			username=#{username},gender=#{gender},cellphone=#{cellphone},id_card=#{idCard},password=#{password}
+		where 
+			user_id=#{userId}
+	</update>
+	<delete id="deleteUser" parameterType="java.lang.Long">
+		delete from sys_user
+		where user_id=#{userId}
+	</delete>
+	<select id="findUserByQuery" parameterType="cn.ekgc.dms.pojo.entity.User" resultMap="userMap">
+		select 
+			u.user_id user_id,
+			u.username username,
+			u.cellphone cellphone,
+			u.password password,
+			u.gender gender,
+			u.role_id role_id,
+			r.role_name role_name,
+			r.create_date role_create_date,
+			r.update_date role_update_date,
+			u.id_card id_card,
+			u.create_date create_date,
+			u.update_date update_date
+		from
+			sys_user u join sys_role  r on u.role_id=r.role_id
+		where
+			<if test="userId != null">u.user_id=#{userId} and</if>
+			<if test="cellphone != null">u.cellphone=#{cellphone} and</if>
+			<if test="password != null">u.password=#{password} and</if>
+			1=1
+	</select>
+	
+	<select id="findUserByPage" parameterType="java.util.Map" resultMap="userMap">
+		select 
+			u.user_id user_id,
+			u.username username,
+			u.cellphone cellphone,
+			u.password password,
+			u.gender gender,
+			u.role_id role_id,
+			r.role_name role_name,
+			r.create_date role_create_date,
+			r.update_date role_update_date,
+			u.id_card id_card,
+			u.create_date create_date,
+			u.update_date update_date
+		from
+			sys_user u join sys_role  r on u.role_id=r.role_id
+		<if test="begin != null">
+			limit #{begin}, #{size}
+		</if>
+	</select>
+	<select id="findUserById" parameterType="java.lang.Long" resultMap="userMap">
+		select 
+			u.user_id user_id,
+			u.username username,
+			u.cellphone cellphone,
+			u.password password,
+			u.gender gender,
+			u.role_id role_id,
+			r.role_name role_name,
+			r.create_date role_create_date,
+			r.update_date role_update_date,
+			u.id_card id_card,
+			u.create_date create_date,
+			u.update_date update_date
+		from
+			sys_user u join sys_role  r on u.role_id=r.role_id
+		where
+			user_id=#{userId}
+	</select>
+	<resultMap type="cn.ekgc.dms.pojo.entity.User" id="userMap">
+		<id property="userId" javaType="java.lang.Long" column="user_id"/>
+		<result property="username" javaType="java.lang.String" column="username"/>
+		<result property="cellphone" javaType="java.lang.String" column="cellphone"/>
+		<result property="password" javaType="java.lang.String" column="password"/>
+		<result property="gender" javaType="java.lang.String" column="gender"/>
+		<result property="idCard" javaType="java.lang.String" column="id_card"/>
+		<result property="createDate" javaType="java.util.Date" column="create_date"/>
+		<result property="updateDate" javaType="java.util.Date" column="update_date"/>
+		<association property="role" javaType="cn.ekgc.dms.pojo.entity.Role">
+			<id property="roleId" javaType="java.lang.Long" column="role_id"/>
+			<result property="roleName" javaType="java.lang.String" column="role_name"/>
+			<result property="createDate" javaType="java.util.Date" column="role_create_date"/>
+			<result property="updateDate" javaType="java.util.Date" column="role_update_date"/>
+		</association>
+		
+	</resultMap>
+</mapper>

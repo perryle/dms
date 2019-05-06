@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+							http://www.springframework.org/schema/beans/spring-beans.xsd
+							http://www.springframework.org/schema/context
+							http://www.springframework.org/schema/context/spring-context.xsd
+							http://www.springframework.org/schema/tx
+							http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<!-- 加载properties文件 -->
+	<context:property-placeholder location="classpath*:/jdbc.properties"/>
+	<!-- 开启spring容器注解扫描机制，设定注解扫描基础包位置 -->
+	<context:component-scan base-package="cn.ekgc.dms">
+		<!-- 不扫描controller和ControllerAdvice -->
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+	</context:component-scan>
+	<!-- 设定JDBC链接信息和数据池初始化设置 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="driverClassName" value="${jdbc.driver}"/>
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+		<property name="minIdle" value="${druid.minIdle}"/>
+		<property name="maxActive" value="${druid.maxActive}"/>
+		<property name="initialSize" value="${druid.initialSize}"/>
+		<property name="minEvictableIdleTimeMillis" value="${druid.minEvictableIdleTimeMillis}"/>
+		<property name="maxEvictableIdleTimeMillis" value="${druid.maxEvictableIdleTimeMillis}"/>
+	</bean>
+	<!-- 配置mybatis -->
+	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="mapperLocations" value="classpath*:/mapper/*.mapper.xml"/>
+	</bean>
+	<!-- 设定数据持久层接口位置 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"/>
+		<property name="basePackage" value="cn.ekgc.dms.dao"/>
+	</bean>
+	<!-- 配置事务处理机制 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<!-- 启动事务处理 -->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+</beans>
